@@ -59,9 +59,8 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
 
   return (
     <div className="relative w-full animate-fade-in">
-      {/* Triangle pointer with yellow border */}
       <div
-        className="absolute w-12 h-12 bg-red-500 z-40"
+        className="absolute -top-4 w-0 h-0 border-l-[16px] border-r-[16px] border-b-[16px] border-l-transparent border-r-transparent border-b-yellow-400 z-10"
         style={{ left: pointerPosition, transform: "translateX(-50%)" }}
       ></div>
 

@@ -83,7 +83,7 @@ function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
       const gridRect = gridRef.current.getBoundingClientRect();
 
       const relativePointerX =
-        mediaCardRect.left - gridRect.left + (mediaCardRect.width / 2) * 100;
+        mediaCardRect.left - gridRect.left + mediaCardRect.width / 2;
 
       setPointerPosition(relativePointerX);
     }
