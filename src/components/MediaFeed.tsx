@@ -1,76 +1,169 @@
-import { useEffect } from "react";
+import { useEffect, useRef, type JSX } from "react";
 
 import { TMDB } from "../services/tmdb/api";
 
 import { useState } from "react";
 
 import type { Movie, TVShow } from "../services/tmdb/models";
+
 import MediaCard from "./ui/MediaCard";
+import MediaPeek from "./ui/MediaPeek";
 
-function MediaFeed({ mediaType }: { mediaType: "movie" | "tv" }) {
-  const tmdb = new TMDB();
+import type { MediaType } from "../types/tmdb";
 
-  const [mediaItems, setMediaItems] = useState<Array<Movie | TVShow>>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+interface MediaFeedProps {
+  mediaType: MediaType;
+  mediaItems: (Movie | TVShow)[];
+}
 
-  useEffect(() => {
-    getFeedItems();
-  }, []);
+function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
+  /* Steps to achieve good peek-component behavior:
+    -----------------------------------------------
+    1. Calculate which row the where the media item should be in.
+    2. Define all the media items in the same row.
+    3. Handle the product click event (if the active product is clicked, the peek-component should disappear.).
+    4. Find the index where we should insert the peek-component.
+    5. Render the media items' cards.
+    6. Insert the peek-component after the last element in the row.
+    7. Reset selected card when resizing the screen. 
+    */
 
-  const getFeedItems = async () => {
-    // Resetting the state
-    setLoading(true);
-    setError(null);
-    setMediaItems([]);
+  const [selectedMediaItem, setSelectedMediaItem] = useState<
+    Movie | TVShow | null
+  >(null);
+  const [pointerPosition, setPointerPosition] = useState<number>(0);
 
-    try {
-      const items = await (mediaType === "movie"
-        ? tmdb.getMoviesList
-        : tmdb.getTvShowsList)({ page: 1, type: "popular" });
-      setMediaItems(items);
-    } catch (err) {
-      setError(err as string);
-    } finally {
-      setLoading(false);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
+  const calculateRowIndex = (cardIndex: number): number => {
+    if (!gridRef.current) return 0;
+
+    const computedStyle = window.getComputedStyle(gridRef.current);
+    const colunmsString = computedStyle.getPropertyValue(
+      "grid-template-columns"
+    );
+    const columnsCount = colunmsString.split(" ").length;
+
+    return Math.floor(cardIndex / columnsCount);
+  };
+
+  const getMediaItemsInSameRow = (rowIndex: number): number[] => {
+    if (!gridRef.current) return [];
+
+    const computedStyle = window.getComputedStyle(gridRef.current);
+    const columnsString = computedStyle.getPropertyValue(
+      "grid-template-columns"
+    );
+    const columnsCount = columnsString.split(" ").length;
+
+    const productsInRow = [];
+    const startIndex = rowIndex * columnsCount;
+    const endIndex = Math.min(startIndex + columnsCount, mediaItems.length);
+
+    for (let i = startIndex; i < endIndex; i++) {
+      productsInRow.push(i);
+    }
+
+    return productsInRow;
+  };
+
+  const handleMediaCardClick = (mediaItem: Movie | TVShow, index: number) => {
+    if (selectedMediaItem && selectedMediaItem.id === mediaItem.id) {
+      setSelectedMediaItem(null);
+      return;
+    }
+
+    setSelectedMediaItem(mediaItem);
+
+    const mediaCardElement = cardsRef.current[index];
+
+    if (mediaCardElement && gridRef.current) {
+      const mediaCardRect = mediaCardElement.getBoundingClientRect();
+      const gridRect = gridRef.current.getBoundingClientRect();
+
+      const relativePointerX =
+        mediaCardRect.left - gridRect.left + (mediaCardRect.width / 2) * 100;
+
+      setPointerPosition(relativePointerX);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {Array.from({ length: 12 }).map((_, index) => (
-          <div key={index} className="animate-pulse">
-            <div className="bg-gray-800 h-80 rounded-lg"></div>
+  const getPeekComponentInsertIndex = (): number | null => {
+    if (!selectedMediaItem) return null;
+
+    const selectedMediaItemIndex = mediaItems.findIndex(
+      (i) => i.id === selectedMediaItem.id
+    );
+
+    if (selectedMediaItemIndex === -1) return null;
+
+    const rowIndex = calculateRowIndex(selectedMediaItemIndex);
+    const mediaItemsInSameRow = getMediaItemsInSameRow(rowIndex);
+
+    const peekComponentInsertIndex =
+      mediaItemsInSameRow[mediaItemsInSameRow.length - 1];
+
+    return peekComponentInsertIndex;
+  };
+
+  const renderMediaItemsCards = () => {
+    const cards: JSX.Element[] = [];
+    const peekComponentIndex = getPeekComponentInsertIndex();
+
+    mediaItems.forEach((item, index) => {
+      cards.push(
+        <div
+          key={item.id}
+          ref={(i) => {
+            cardsRef.current[index] = i;
+          }}
+        >
+          <MediaCard
+            media={item}
+            type={mediaType}
+            isSelected={selectedMediaItem?.id === item.id}
+            onClick={() => handleMediaCardClick(item, index)}
+          />
+        </div>
+      );
+
+      if (selectedMediaItem && peekComponentIndex === index) {
+        cards.push(
+          <div key={`peek-${selectedMediaItem.id}`} className="col-span-full">
+            <MediaPeek
+              mediaId={selectedMediaItem.id}
+              mediaType={selectedMediaItem.getMediaType()}
+              pointerPosition={pointerPosition}
+            />
           </div>
-        ))}
-      </div>
-    );
-  }
+        );
+      }
+    });
 
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-400 text-lg">Something went wrong</p>
-        <p className="text-danger text-lg">{error}</p>
-      </div>
-    );
-  }
+    return cards;
+  };
 
-  if (mediaItems?.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-400 text-lg">No items to display here.</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const handleViewPortResize = () => {
+      setSelectedMediaItem(null);
+    };
+
+    window.addEventListener("resize", handleViewPortResize);
+
+    return () => {
+      window.removeEventListener("resize", handleViewPortResize);
+    };
+  }, []);
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {mediaItems.map((item) => (
-          <MediaCard media={item} type={item.getMediaType()} key={item.id} />
-        ))}
+      <h1>{selectedMediaItem?.title}</h1>
+      <div
+        ref={gridRef}
+        className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+      >
+        {renderMediaItemsCards()}
       </div>
     </>
   );

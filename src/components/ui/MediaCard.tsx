@@ -1,12 +1,22 @@
 import Icons from "./Icons";
 import type { Movie, TVShow } from "../../services/tmdb/models";
 
-type Props = { type: "movie"; media: Movie } | { type: "tv"; media: TVShow };
+type Props = { onClick: () => void; isSelected: boolean } & (
+  | { type: "movie"; media: Movie }
+  | { type: "tv"; media: TVShow }
+);
 
-function MediaCard({ media, type }: Props) {
+function MediaCard({ media, type, onClick, isSelected = false }: Props) {
   return (
-    <div className="group cursor-pointer transform transition-all duration-300">
-      <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg">
+    <div
+      onClick={onClick}
+      className={"group cursor-pointer transform transition-all duration-300"}
+    >
+      <div
+        className={`relative overflow-hidden bg-gray-800 shadow-lg ${
+          isSelected ? "border-2 border-yellow-500" : ""
+        }`}
+      >
         <img
           src={media.getPosterURL()}
           alt={media.title}
