@@ -93,12 +93,14 @@ export class DetailedTVShow extends TVShow {
   releasedAt: string;
   productionCompanies: { id: number; name: string; logo_path: string | null }[];
   seasons: { name: string; poster_path: string | null; id: number }[];
+  languages: { english_name: string; iso_639_1: string; name: string }[];
 
   constructor(data: TMDBTVShow) {
     super(data);
     this.releasedAt = data.first_air_date;
     this.productionCompanies = data.production_companies;
     this.seasons = data.seasons;
+    this.languages = data.spoken_languages;
   }
 }
 

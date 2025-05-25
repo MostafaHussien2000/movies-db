@@ -37,6 +37,7 @@ export interface TMDBTVShow extends TMDBMediaItem {
     name: string;
   }[];
   seasons: { name: string; poster_path: string | null; id: number }[];
+  spoken_languages: { english_name: string; iso_639_1: string; name: string }[];
 }
 
 interface TMDBAuthor {
