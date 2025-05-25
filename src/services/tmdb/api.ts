@@ -1,4 +1,4 @@
-import { Movie, Review, TVShow } from "./models";
+import { DetailedMovie, DetailedTVShow, Movie, Review, TVShow } from "./models";
 import type { MediaType, TMDBMediaItem, TMDBReview } from "../../types/tmdb";
 import { TMDB_API_KEY, BASE_URL } from "./config";
 
@@ -87,7 +87,7 @@ export class TMDB {
     }
   };
 
-  getMovieById = async (id: number): Promise<Movie> => {
+  getMovieById = async (id: number): Promise<DetailedMovie> => {
     try {
       const url = new URL(`${this.baseURL}/movie/${id.toString()}`);
       url.searchParams.set("language", "en-US");
@@ -103,7 +103,7 @@ export class TMDB {
 
       const json = await response.json();
 
-      return new Movie(json);
+      return new DetailedMovie(json);
     } catch (err) {
       throw err;
     }
@@ -171,7 +171,7 @@ export class TMDB {
     }
   };
 
-  getTVShowById = async (id: number): Promise<TVShow> => {
+  getTVShowById = async (id: number): Promise<DetailedTVShow> => {
     try {
       const url = new URL(`${this.baseURL}/tv/${id.toString()}`);
       url.searchParams.set("language", "en-US");
@@ -187,7 +187,7 @@ export class TMDB {
 
       const json = await response.json();
 
-      return new TVShow(json);
+      return new DetailedTVShow(json);
     } catch (err) {
       throw err;
     }

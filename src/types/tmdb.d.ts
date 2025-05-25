@@ -12,6 +12,33 @@ export interface TMDBMediaItem {
   vote_average: number;
 }
 
+export interface TMDBMovie extends TMDBMediaItem {
+  release_date: string;
+  belongs_to_collection?: {
+    id: number;
+    name: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+  };
+  spoken_languages: { english_name: string; iso_639_1: string; name: string }[];
+  tagline: string;
+  production_companies: {
+    id: number;
+    logo_path: string | null;
+    name: string;
+  }[];
+}
+
+export interface TMDBTVShow extends TMDBMediaItem {
+  first_air_date: string;
+  production_companies: {
+    id: number;
+    logo_path: string | null;
+    name: string;
+  }[];
+  seasons: { name: string; poster_path: string | null; id: number }[];
+}
+
 interface TMDBAuthor {
   name: string;
   username: string;
