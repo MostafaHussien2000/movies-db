@@ -2,7 +2,7 @@ import Icons from "./ui/Icons";
 
 function Navbar() {
   return (
-    <header className="border-b border-gray-800 sticky top-0 z-50 mb-5">
+    <header className="border-b border-gray-800 sticky top-0 z-50 mb-5 bg-background">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-2 flex-col sm:flex-row">
           <h1 className="text-3xl font-bold text-white">
