@@ -6,7 +6,7 @@ export class TMDB {
   private baseURL: string;
   private apiKey: string;
 
-  private get requestOptions() {
+  private get requestOptions(): RequestInit {
     return {
       method: "GET",
       headers: {
@@ -17,6 +17,10 @@ export class TMDB {
   }
 
   constructor() {
+    if (!BASE_URL || !TMDB_API_KEY) {
+      throw new Error("Missing required environment variables.");
+    }
+
     this.baseURL = BASE_URL;
     this.apiKey = TMDB_API_KEY;
   }
@@ -24,167 +28,201 @@ export class TMDB {
   /* Movies Methods
   ================= */
 
-  async getMoviesList({
+  getMoviesList = async ({
     page = 1,
     type = "now_playing",
   }: {
     page: number;
     type: "now_playing" | "popular" | "upcoming" | "top_rated";
-  }): Promise<Movie[]> {
+  }): Promise<Movie[]> => {
+    const url = new URL(`${this.baseURL}/movie/${type}`);
+    url.searchParams.set("language", "en-US");
+    url.searchParams.set("page", page.toString());
+
     try {
-      const response = await fetch(
-        `${this.baseURL}/discover/movie/${type}?page=${page}`,
-        this.requestOptions
-      );
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch movies: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return json.results.map((result: TMDBMediaItem) => new Movie(result));
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
-  async searchMovies(query: string): Promise<Movie[]> {
+  searchMovies = async ({
+    query,
+    page = 1,
+  }: {
+    query: string;
+    page: number;
+  }): Promise<Movie[]> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/search/movie?query=${query}&page=1`,
-        this.requestOptions
-      );
+      const url = new URL(`${this.baseURL}/search/movie`);
+      url.searchParams.set("language", "en-US");
+      url.searchParams.set("query", query);
+      url.searchParams.set("page", page.toString());
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to search movie: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return json.results.map((result: TMDBMediaItem) => new Movie(result));
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
-  async getMovieById(id: number): Promise<Movie> {
+  getMovieById = async (id: number): Promise<Movie> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/movie/${id}`,
-        this.requestOptions
-      );
+      const url = new URL(`${this.baseURL}/movie/${id.toString()}`);
+      url.searchParams.set("language", "en-US");
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch movie: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return new Movie(json);
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
   /* TV Shows Methods
   =================== */
 
-  async getTvShowsList({
+  getTvShowsList = async ({
     page = 1,
     type = "popular",
   }: {
     page: number;
     type: "popular" | "top_rated";
-  }): Promise<TVShow[]> {
+  }): Promise<TVShow[]> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/tv/${type}?page=${page}`,
-        this.requestOptions
-      );
+      const url = new URL(`${this.baseURL}/tv/${type}`);
+      url.searchParams.set("language", "en-US");
+      url.searchParams.set("page", page.toString());
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch tv shows: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return json.results.map((result: TMDBMediaItem) => new TVShow(result));
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
-  async searchTVShows(query: string): Promise<TVShow[]> {
+  searchTVShows = async ({
+    query,
+    page = 1,
+  }: {
+    query: string;
+    page: number;
+  }): Promise<TVShow[]> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/search/tv?query=${query}`,
-        this.requestOptions
-      );
+      const url = new URL(`${this.baseURL}/search/tv`);
+      url.searchParams.set("language", "en-US");
+      url.searchParams.set("query", query);
+      url.searchParams.set("page", page.toString());
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to search tv shows: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return json.results.map((result: TMDBMediaItem) => new TVShow(result));
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
-  async getTVShowById(id: number): Promise<TVShow> {
+  getTVShowById = async (id: number): Promise<TVShow> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/tv/${id}?`,
-        this.requestOptions
-      );
+      const url = new URL(`${this.baseURL}/tv/${id.toString()}`);
+      url.searchParams.set("language", "en-US");
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch tv show: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return new TVShow(json);
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 
   /* Reviews for TV Shows/ Movies
   =============================== */
 
-  async getReviews({
+  getReviews = async ({
     id,
     mediaType,
   }: {
     id: number;
     mediaType: MediaType;
-  }): Promise<Review[]> {
+  }): Promise<Review[]> => {
     try {
-      const response = await fetch(
-        `${this.baseURL}/${mediaType}/${id}/reviews?language=en-US&page=1`,
-        this.requestOptions
+      const url = new URL(
+        `${this.baseURL}/${mediaType}/${id.toString()}/reviews`
       );
+      url.searchParams.set("language", "en-US");
+
+      const response = await fetch(url.toString(), this.requestOptions);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data.");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch reviews: ${response.status} - ${errorBody}`
+        );
       }
 
       const json = await response.json();
 
       return json.results.map((result: TMDBReview) => new Review(result));
     } catch (err) {
-      const error = err as Error;
-      throw new Error(error.message);
+      throw err;
     }
-  }
+  };
 }
