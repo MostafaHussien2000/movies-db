@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { TMDB } from "../../services/tmdb/api";
-import type { Movie, TVShow } from "../../services/tmdb/models";
+import type { DetailedMovie, DetailedTVShow } from "../../services/tmdb/models";
 import Icons from "./Icons";
+import { formatDateToShortString } from "../../utlis/formatDateToShortString";
 
 interface MediaPeekProps {
   mediaId: number;
@@ -12,7 +13,9 @@ interface MediaPeekProps {
 function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
   const tmdb = new TMDB();
 
-  const [mediaData, setMediaData] = useState<Movie | TVShow | null>(null);
+  const [mediaData, setMediaData] = useState<
+    DetailedMovie | DetailedTVShow | null
+  >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +75,7 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
           />
 
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
 
           {/* Content */}
           <div className="absolute inset-0 flex items-center">
@@ -87,7 +90,7 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
                   {mediaData?.overview}
                 </p>
 
-                <div className="flex items-center gap-4 mb-4 text-sm">
+                <div className="flex items-center gap-4 mb-8 text-sm flex-wrap justify-between">
                   {/* Rating */}
                   {mediaData?.rating && (
                     <div>
@@ -128,6 +131,50 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
                             );
                           }
                         })}
+                      </div>
+                    </div>
+                  )}
+                  {/* Genres */}
+                  {mediaData?.genres && (
+                    <div>
+                      <h3 className="font-semibold text-lg">Genres</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {mediaData.genres.map((genre) => (
+                          <span
+                            key={genre.id}
+                            className="bg-white/10 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm"
+                          >
+                            {genre.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Release Date */}
+                  {mediaData?.releasedAt && (
+                    <div>
+                      <h3 className="font-semibold text-lg">Release Date</h3>
+                      <div className="flex items-center gap-2">
+                        <Icons.Calendar />
+                        <span className="text-white text-sm">
+                          {formatDateToShortString(mediaData.releasedAt)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {/* Languages */}
+                  {mediaData?.languages && (
+                    <div>
+                      <h3 className="font-semibold text-lg">Languages</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {mediaData.languages.map((language) => (
+                          <span
+                            key={language.iso_639_1}
+                            className="text-sm text-yellow-500"
+                          >
+                            {language.english_name}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )}
