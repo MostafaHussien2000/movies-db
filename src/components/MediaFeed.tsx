@@ -1,7 +1,5 @@
 import { useEffect, useRef, type JSX } from "react";
 
-import { TMDB } from "../services/tmdb/api";
-
 import { useState } from "react";
 
 import type { Movie, TVShow } from "../services/tmdb/models";
@@ -17,6 +15,7 @@ interface MediaFeedProps {
 }
 
 function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
+  console.log(mediaType);
   /* Steps to achieve good peek-component behavior:
     -----------------------------------------------
     1. Calculate which row the where the media item should be in.
@@ -154,11 +153,10 @@ function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
     return () => {
       window.removeEventListener("resize", handleViewPortResize);
     };
-  }, []);
+  }, [mediaType]);
 
   return (
     <>
-      <h1>{selectedMediaItem?.title}</h1>
       <div
         ref={gridRef}
         className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"

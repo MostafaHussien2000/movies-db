@@ -3,6 +3,7 @@ import MediaFeed from "../components/MediaFeed";
 import { TMDB } from "../services/tmdb/api";
 import type { MediaType } from "../types/tmdb";
 import type { Movie, TVShow } from "../services/tmdb/models";
+import Tabs from "../components/ui/Tabs";
 
 function Home() {
   const tmdb = new TMDB();
@@ -15,7 +16,7 @@ function Home() {
 
   useEffect(() => {
     getFeedItems();
-  }, []);
+  }, [currentMediaTab]);
 
   const getFeedItems = async () => {
     // Resetting the state
@@ -35,31 +36,40 @@ function Home() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="container mx-auto p-2 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-        {Array.from({ length: 10 }).map((_, index) => (
-          <div
-            key={index}
-            className="w-full h-64 flex items-center justify-center bg-white/10 rounded-lg animate-pulse"
-          ></div>
-        ))}
-      </div>
-    );
-
-  if (error)
-    return (
-      <>
-        <center>
-          <h3>Error: {JSON.stringify(error)}</h3>
-        </center>
-      </>
-    );
+  const tabs: {
+    id: MediaType;
+    label: string;
+  }[] = [
+    { id: "movie", label: "Movies" },
+    { id: "tv", label: "TV Shows" },
+  ];
 
   return (
     <main className="min-h-screen py-6">
       <section className="container mx-auto p-2">
-        <MediaFeed mediaItems={mediaItems} mediaType={currentMediaTab} />
+        <Tabs
+          tabs={tabs}
+          currentTab={currentMediaTab}
+          setCurrentTab={setCurrentMediaTab}
+        />
+        {loading ? (
+          <div className="container mx-auto p-2 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-full h-64 flex items-center justify-center bg-white/10 rounded-lg animate-pulse"
+              ></div>
+            ))}
+          </div>
+        ) : error ? (
+          <center>
+            <h3>Error: {JSON.stringify(error)}</h3>
+          </center>
+        ) : (
+          mediaItems.length > 0 && (
+            <MediaFeed mediaItems={mediaItems} mediaType={currentMediaTab} />
+          )
+        )}
       </section>
     </main>
   );
