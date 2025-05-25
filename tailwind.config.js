@@ -17,6 +17,9 @@ export default {
       borderRadius: {
         lg: "12px",
       },
+      screens: {
+        xs: "425px",
+      },
     },
   },
   plugins: [],
