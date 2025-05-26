@@ -1,7 +1,7 @@
 import type { MediaType, TMDBMediaItem } from "../../types/tmdb";
 import { MAX_ITEMS, RECENT_SEARCHES_KEY, RECENT_VIEWS_KEY } from "./config";
 
-interface HistoryMediaItem extends TMDBMediaItem {
+export interface HistoryMediaItem extends TMDBMediaItem {
   type: MediaType;
 }
 

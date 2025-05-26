@@ -5,6 +5,10 @@ import { TMDB } from "../services/tmdb/api";
 import Icons from "../components/ui/Icons";
 import { formatDateToShortString } from "../utlis/formatDateToShortString";
 import ReviewsSection from "../components/ui/ReviewsSection";
+import {
+  activityHistory,
+  type HistoryMediaItem,
+} from "../services/activityHistory/activityHistory";
 
 function TVShowDetail() {
   const { id } = useParams();
@@ -21,6 +25,20 @@ function TVShowDetail() {
       setError(null);
       const tvShow = await tmdb.getTVShowById(Number(id));
       setTVShow(tvShow);
+
+      const historyTVShow: HistoryMediaItem = {
+        id: tvShow.id,
+        title: tvShow.title,
+        poster_path: tvShow.getPosterURL(),
+        backdrop_path: tvShow.getBackdropURL(),
+        overview: tvShow.overview,
+        vote_average: tvShow.rating,
+        type: "tv",
+      };
+
+      if (tvShow) {
+        activityHistory.saveViewed(historyTVShow);
+      }
     } catch (err) {
       setError(err as string);
     } finally {

@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import Icons from "../components/ui/Icons";
 import { formatDateToShortString } from "../utlis/formatDateToShortString";
 import ReviewsSection from "../components/ui/ReviewsSection";
+import {
+  activityHistory,
+  type HistoryMediaItem,
+} from "../services/activityHistory/activityHistory";
 
 function MovieDetails() {
   const { id } = useParams();
@@ -21,6 +25,20 @@ function MovieDetails() {
       setError(null);
       const movie = await tmdb.getMovieById(Number(id));
       setMovie(movie);
+
+      const historyMovie: HistoryMediaItem = {
+        id: movie.id,
+        title: movie.title,
+        poster_path: movie.poster,
+        backdrop_path: movie.backdrop,
+        overview: movie.overview,
+        vote_average: movie.rating,
+        type: "movie",
+      };
+
+      if (movie) {
+        activityHistory.saveViewed(historyMovie);
+      }
     } catch (err) {
       setError(err as string);
     } finally {

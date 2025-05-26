@@ -4,6 +4,7 @@ import { TMDB } from "../services/tmdb/api";
 import type { MediaType } from "../types/tmdb";
 import type { Movie, TVShow } from "../services/tmdb/models";
 import Tabs from "../components/ui/Tabs";
+import RecentlyViewedMedia from "../components/RecentlyViewedMedia";
 
 function Home() {
   const tmdb = new TMDB();
@@ -46,6 +47,8 @@ function Home() {
 
   return (
     <main className="min-h-screen py-6">
+      <RecentlyViewedMedia />
+
       <section className="container mx-auto p-2">
         <Tabs
           tabs={tabs}
