@@ -3,6 +3,7 @@ import { TMDB } from "../../services/tmdb/api";
 import type { DetailedMovie, DetailedTVShow } from "../../services/tmdb/models";
 import Icons from "./Icons";
 import { formatDateToShortString } from "../../utlis/formatDateToShortString";
+import { Link } from "react-router-dom";
 
 interface MediaPeekProps {
   mediaId: number;
@@ -179,12 +180,12 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
                   )}
                 </div>
 
-                <button
-                  //   onClick={handleReadMore}
+                <Link
+                  to={`/${mediaType}/${mediaData?.id}`}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2"
                 >
                   Read More
-                </button>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { FiTv } from "react-icons/fi";
 import {
   TbArrowLeft,
   TbArrowRight,
@@ -5,12 +6,14 @@ import {
   TbClock,
   TbCommand,
   TbHeartFilled,
+  TbMovie,
   TbPlayerPlayFilled,
   TbSearch,
   TbShare,
   TbStar,
   TbStarFilled,
   TbStarHalfFilled,
+  TbUser,
   TbX,
 } from "react-icons/tb";
 
@@ -23,6 +26,10 @@ const Icons = {
   Calendar: TbCalendar,
   Time: TbClock,
   X: TbX,
+
+  Film: TbMovie,
+  TV: FiTv,
+  User: TbUser,
 
   Share: TbShare,
   Play: TbPlayerPlayFilled,
