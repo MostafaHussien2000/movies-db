@@ -15,27 +15,51 @@ function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    getFeedItems();
-  }, [currentMediaTab]);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   const getFeedItems = async () => {
     // Resetting the state
     setLoading(true);
     setError(null);
-    setMediaItems([]);
 
     try {
       const items = await (currentMediaTab === "movie"
         ? tmdb.getMoviesList
-        : tmdb.getTvShowsList)({ page: 1, type: "popular" });
-      setMediaItems(items);
+        : tmdb.getTvShowsList)({ page, type: "popular" });
+
+      if (items.length > 0) setMediaItems((prev) => [...prev, ...items]);
+
+      if (items.length < 20) {
+        setHasMore(false);
+      }
     } catch (err) {
       setError(err as string);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + window.scrollY >=
+      document.body.offsetHeight - 100
+    ) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasMore]);
+
+  useEffect(() => {
+    if (!hasMore) return;
+    getFeedItems();
+  }, [currentMediaTab, page]);
 
   const tabs: {
     id: MediaType;
@@ -53,9 +77,14 @@ function Home() {
         <Tabs
           tabs={tabs}
           currentTab={currentMediaTab}
-          setCurrentTab={setCurrentMediaTab}
+          setCurrentTab={(tab) => {
+            setCurrentMediaTab(tab);
+            setMediaItems([]);
+            setPage(1);
+            setHasMore(true);
+          }}
         />
-        {loading ? (
+        {page === 1 && loading ? (
           <div className="container mx-auto p-2 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {Array.from({ length: 10 }).map((_, index) => (
               <div
@@ -72,6 +101,16 @@ function Home() {
           mediaItems.length > 0 && (
             <MediaFeed mediaItems={mediaItems} mediaType={currentMediaTab} />
           )
+        )}
+        {hasMore && (
+          <div className="container mx-auto p-2 grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-full h-64 flex items-center justify-center bg-white/10 rounded-lg animate-pulse"
+              ></div>
+            ))}
+          </div>
         )}
       </section>
     </main>
