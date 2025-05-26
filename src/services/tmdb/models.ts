@@ -92,15 +92,31 @@ export class TVShow extends MediaItem {
 export class DetailedTVShow extends TVShow {
   releasedAt: string;
   productionCompanies: { id: number; name: string; logo_path: string | null }[];
-  seasons: { name: string; poster_path: string | null; id: number }[];
+  seasons: TVShowSeason[];
   languages: { english_name: string; iso_639_1: string; name: string }[];
 
   constructor(data: TMDBTVShow) {
     super(data);
     this.releasedAt = data.first_air_date;
     this.productionCompanies = data.production_companies;
-    this.seasons = data.seasons;
+    this.seasons = data.seasons.map((season) => new TVShowSeason(season));
     this.languages = data.spoken_languages;
+  }
+}
+
+export class TVShowSeason {
+  id: number;
+  name: string;
+  poster_path: string | null;
+
+  constructor(data: { id: number; name: string; poster_path: string | null }) {
+    this.id = data.id;
+    this.name = data.name;
+    this.poster_path = data.poster_path;
+  }
+
+  getPosterURL(size: ImageSize = "w500"): string {
+    return `${IMAGE_BASE_URL}/${size}/${this.poster_path}`;
   }
 }
 
@@ -125,6 +141,10 @@ export class Review {
       avatar_path: this.author_details.avatar_path,
       rating: this.author_details.rating,
     };
+  }
+
+  getAvatarURL(size: ImageSize = "w500"): string {
+    return `${IMAGE_BASE_URL}/${size}/${this.author_details.avatar_path}`;
   }
 
   getRating(): number {

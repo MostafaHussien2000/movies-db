@@ -4,7 +4,10 @@ import {
   TbCalendar,
   TbClock,
   TbCommand,
+  TbHeartFilled,
+  TbPlayerPlayFilled,
   TbSearch,
+  TbShare,
   TbStar,
   TbStarFilled,
   TbStarHalfFilled,
@@ -20,6 +23,10 @@ const Icons = {
   Calendar: TbCalendar,
   Time: TbClock,
   X: TbX,
+
+  Share: TbShare,
+  Play: TbPlayerPlayFilled,
+  Heart: TbHeartFilled,
 
   // Arrows
   ArrowRight: TbArrowRight,
