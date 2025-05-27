@@ -56,36 +56,40 @@ function ReviewsSection({ id, mediaType }: ReviewsSectionProps) {
     <div>
       <h2 className="text-2xl font-bold mb-4 text-yellow-500">Reviews</h2>
       <div className="grid grid-cols-1 gap-4">
-        {reviews.map((review) => (
-          <div
-            key={review.id}
-            className="bg-background/10 backdrop-blur-sm rounded-lg p-4"
-          >
-            <div className="flex items-center gap-4 p-2 rounded-lg">
-              <div className="bg-white/50 rounded-full w-12 h-12">
-                {review.getAvatarURL() && (
-                  <img
-                    src={review.getAvatarURL()}
-                    alt={review.getAuthor().name}
-                    className="rounded-full w-full h-full object-cover"
-                  />
-                )}
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <div
+              key={review.id}
+              className="bg-background/10 backdrop-blur-sm rounded-lg p-4"
+            >
+              <div className="flex items-center gap-4 p-2 rounded-lg">
+                <div className="bg-white/50 rounded-full w-12 h-12">
+                  {review.getAvatarURL() && (
+                    <img
+                      src={review.getAvatarURL()}
+                      alt={review.getAuthor().name}
+                      className="rounded-full w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm text-white">
+                    {review.getAuthor().name || "Anonymous"}
+                  </p>
+                  {/* username */}
+                  <p className="text-xs text-gray-300">
+                    @{review.getAuthor().username || "anonymous"}
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm text-white">
-                  {review.getAuthor().name || "Anonymous"}
-                </p>
-                {/* username */}
-                <p className="text-xs text-gray-300">
-                  @{review.getAuthor().username || "anonymous"}
-                </p>
+              <div className="text-md">
+                {<ReactMarkdown>{review.content}</ReactMarkdown>}
               </div>
             </div>
-            <p className="text-md">
-              {<ReactMarkdown>{review.content}</ReactMarkdown>}
-            </p>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-center my-8 text-white/40">No reviews found</p>
+        )}
       </div>
     </div>
   );

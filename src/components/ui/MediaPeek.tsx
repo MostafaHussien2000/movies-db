@@ -66,7 +66,7 @@ function MediaPeek({ mediaId, mediaType, pointerPosition }: MediaPeekProps) {
       ></div>
 
       <div className="bg-gray-800 overflow-hidden shadow-2xl border-2 border-yellow-400">
-        <div className="relative h-64 md:h-80">
+        <div className="relative h-120 md:h-80 min-h-64">
           {/* Backdrop image */}
           <img
             src={mediaData?.getBackdropURL()}

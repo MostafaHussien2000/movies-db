@@ -27,6 +27,7 @@ export interface TMDBMovie extends TMDBMediaItem {
     logo_path: string | null;
     name: string;
   }[];
+  cast: TMDBCastMember[];
 }
 
 export interface TMDBTVShow extends TMDBMediaItem {
@@ -38,6 +39,7 @@ export interface TMDBTVShow extends TMDBMediaItem {
   }[];
   seasons: { name: string; poster_path: string | null; id: number }[];
   spoken_languages: { english_name: string; iso_639_1: string; name: string }[];
+  cast: TMDBCastMember[];
 }
 
 interface TMDBAuthor {
@@ -45,6 +47,13 @@ interface TMDBAuthor {
   username: string;
   avatar_path: string | null;
   rating: number;
+}
+
+interface TMDBCastMember {
+  id: number;
+  name: string;
+  profile_path: string | null;
+  known_for_department: "Acting" | "Directing" | (string & {});
 }
 
 export interface TMDBReview {

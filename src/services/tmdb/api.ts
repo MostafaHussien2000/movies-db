@@ -1,5 +1,10 @@
 import { DetailedMovie, DetailedTVShow, Movie, Review, TVShow } from "./models";
-import type { MediaType, TMDBMediaItem, TMDBReview } from "../../types/tmdb";
+import type {
+  MediaType,
+  TMDBCastMember,
+  TMDBMediaItem,
+  TMDBReview,
+} from "../../types/tmdb";
 import { TMDB_API_KEY, BASE_URL } from "./config";
 
 export class TMDB {
@@ -87,7 +92,7 @@ export class TMDB {
     }
   };
 
-  async getMovieById(id: number): Promise<Movie> {
+  getMovieById = async (id: number): Promise<DetailedMovie> => {
     try {
       const url = new URL(`${this.baseURL}/movie/${id.toString()}`);
       url.searchParams.set("language", "en-US");
@@ -107,7 +112,7 @@ export class TMDB {
     } catch (err) {
       throw err;
     }
-  }
+  };
 
   /* TV Shows Methods
   =================== */
@@ -171,7 +176,7 @@ export class TMDB {
     }
   };
 
-  async getTVShowById(id: number): Promise<TVShow> {
+  getTVShowById = async (id: number): Promise<DetailedTVShow> => {
     try {
       const url = new URL(`${this.baseURL}/tv/${id.toString()}`);
       url.searchParams.set("language", "en-US");
@@ -191,7 +196,7 @@ export class TMDB {
     } catch (err) {
       throw err;
     }
-  }
+  };
 
   /* Reviews for TV Shows/ Movies
   =============================== */
@@ -221,6 +226,42 @@ export class TMDB {
       const json = await response.json();
 
       return json.results.map((result: TMDBReview) => new Review(result));
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  /* Get Actors for TV Shows/ Movies
+  ================================== */
+  getCast = async ({
+    id,
+    mediaType,
+  }: {
+    id: number;
+    mediaType: MediaType;
+  }): Promise<TMDBCastMember[]> => {
+    try {
+      const url = new URL(
+        `${this.baseURL}/${mediaType}/${id.toString()}/credits`
+      );
+      url.searchParams.set("language", "en-US");
+
+      const response = await fetch(url.toString(), this.requestOptions);
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch actors: ${response.status} - ${errorBody}`
+        );
+      }
+
+      const json = await response.json();
+
+      return json.cast.filter(
+        (castMember: TMDBCastMember) =>
+          castMember.known_for_department === "Acting" ||
+          castMember.known_for_department === "Directing"
+      );
     } catch (err) {
       throw err;
     }
