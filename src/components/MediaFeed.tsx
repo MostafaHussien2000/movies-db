@@ -15,7 +15,6 @@ interface MediaFeedProps {
 }
 
 function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
-  console.log(mediaType);
   /* Steps to achieve good peek-component behavior:
     -----------------------------------------------
     1. Calculate which row the where the media item should be in.
@@ -153,7 +152,7 @@ function MediaFeed({ mediaType, mediaItems }: MediaFeedProps) {
     return () => {
       window.removeEventListener("resize", handleViewPortResize);
     };
-  }, [mediaType]);
+  }, [mediaType, mediaItems]);
 
   return (
     <>

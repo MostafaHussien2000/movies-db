@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MediaFeed from "../components/MediaFeed";
 import { TMDB } from "../services/tmdb/api";
 import type { MediaType } from "../types/tmdb";
@@ -18,48 +18,65 @@ function Home() {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
+  const isFetching = useRef(false);
+
   const getFeedItems = async () => {
+    if (isFetching.current) return;
+
     // Resetting the state
     setLoading(true);
     setError(null);
+    isFetching.current = true;
 
     try {
       const items = await (currentMediaTab === "movie"
         ? tmdb.getMoviesList
         : tmdb.getTvShowsList)({ page, type: "popular" });
 
-      if (items.length > 0) setMediaItems((prev) => [...prev, ...items]);
+      setMediaItems((prev) => {
+        const existingIds = new Set(prev.map((item) => item.id));
+        const uniqueItems = items.filter((item) => !existingIds.has(item.id));
+        return [...prev, ...uniqueItems];
+      });
 
-      if (items.length < 20) {
+      if (items.length < 20 || page === 499) {
         setHasMore(false);
       }
     } catch (err) {
-      setError(err as string);
+      setError("Failed to load content.");
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
   };
 
-  const handleScroll = () => {
+  const handleScrollTrigger = () => {
     if (
-      window.innerHeight + window.scrollY >=
-      document.body.offsetHeight - 100
+      hasMore &&
+      !loading &&
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 500
     ) {
       setPage((prev) => prev + 1);
     }
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScrollTrigger);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScrollTrigger);
     };
-  }, [hasMore]);
+  }, [hasMore, loading]);
 
   useEffect(() => {
     if (!hasMore) return;
     getFeedItems();
-  }, [currentMediaTab, page]);
+  }, [page]);
+
+  useEffect(() => {
+    setMediaItems([]);
+    setPage(1);
+    setHasMore(true);
+  }, [currentMediaTab]);
 
   const tabs: {
     id: MediaType;
