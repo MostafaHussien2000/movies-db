@@ -1,8 +1,7 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { TMDB } from "../services/tmdb/api";
 import type { DetailedMovie } from "../services/tmdb/models";
 import { useEffect, useState } from "react";
-import Icons from "../components/ui/Icons";
 import { formatDateToShortString } from "../utlis/formatDateToShortString";
 import ReviewsSection from "../components/ui/ReviewsSection";
 import {

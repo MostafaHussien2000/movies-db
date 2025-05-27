@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { MediaType, TMDBCastMember } from "../../types/tmdb";
 import { TMDB } from "../../services/tmdb/api";
 
@@ -6,10 +6,6 @@ function CastSection({ id, mediaType }: { id: string; mediaType: MediaType }) {
   const [actors, setActors] = useState<TMDBCastMember[]>([]);
   const [loadingActors, setLoadingActors] = useState<boolean>(false);
   const [errorActors, setErrorActors] = useState<string | null>("");
-
-  const [directors, setDirectors] = useState<TMDBCastMember[]>([]);
-  const [loadingDirectors, setLoadingDirectors] = useState<boolean>(false);
-  const [errorDirectors, setErrorDirectors] = useState<string | null>("");
 
   const tmdb = new TMDB();
 
@@ -25,11 +21,6 @@ function CastSection({ id, mediaType }: { id: string; mediaType: MediaType }) {
           (castMember) => castMember.known_for_department === "Acting"
         )
       );
-      setDirectors(
-        cast.filter(
-          (castMember) => castMember.known_for_department === "Directing"
-        )
-      );
 
       console.log(cast);
     } catch (err) {
@@ -42,6 +33,10 @@ function CastSection({ id, mediaType }: { id: string; mediaType: MediaType }) {
   useEffect(() => {
     getCast();
   }, []);
+
+  if (errorActors) {
+    return null;
+  }
 
   return (
     <>

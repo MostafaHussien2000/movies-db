@@ -6,7 +6,7 @@ type Props = { onClick: () => void; isSelected: boolean } & (
   | { type: "tv"; media: TVShow }
 );
 
-function MediaCard({ media, type, onClick, isSelected = false }: Props) {
+function MediaCard({ media, onClick, isSelected = false }: Props) {
   return (
     <div
       onClick={onClick}

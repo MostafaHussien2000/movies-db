@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { MediaType } from "../../types/tmdb";
 import type { Review } from "../../services/tmdb/models";
 import { TMDB } from "../../services/tmdb/api";
