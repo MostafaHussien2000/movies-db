@@ -2,7 +2,9 @@ import type {
   MediaType,
   TMDBAuthor,
   TMDBMediaItem,
+  TMDBMovie,
   TMDBReview,
+  TMDBTVShow,
 } from "../../types/tmdb";
 import { IMAGE_BASE_URL } from "./config";
 
@@ -17,8 +19,7 @@ abstract class MediaItem {
   overview: string;
   poster: string | null;
   backdrop: string | null;
-  genre_ids?: number[];
-  genres?: { id: number; name: string }[];
+  genres: { id: number; name: string }[];
   rating: number;
 
   constructor(data: TMDBMediaItem) {
@@ -27,8 +28,7 @@ abstract class MediaItem {
     this.overview = data.overview;
     this.poster = data.poster_path;
     this.backdrop = data.backdrop_path;
-    this.genre_ids = data.genre_ids;
-    this.genres = data.genres;
+    this.genres = data.genres || [];
     this.rating = data.vote_average;
   }
 
@@ -53,6 +53,32 @@ export class Movie extends MediaItem {
   }
 }
 
+export class DetailedMovie extends Movie {
+  releasedAt: string;
+  collection?: {
+    id: number;
+    name: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+  };
+  languages: { english_name: string; iso_639_1: string; name: string }[];
+  tagline: string;
+  productionCompanies: {
+    id: number;
+    logo_path: string | null;
+    name: string;
+  }[];
+
+  constructor(data: TMDBMovie) {
+    super(data);
+    this.releasedAt = data.release_date;
+    this.collection = data.belongs_to_collection;
+    this.languages = data.spoken_languages;
+    this.tagline = data.tagline;
+    this.productionCompanies = data.production_companies;
+  }
+}
+
 export class TVShow extends MediaItem {
   constructor(data: TMDBMediaItem) {
     super(data);
@@ -60,6 +86,37 @@ export class TVShow extends MediaItem {
 
   getMediaType(): MediaType {
     return "tv";
+  }
+}
+
+export class DetailedTVShow extends TVShow {
+  releasedAt: string;
+  productionCompanies: { id: number; name: string; logo_path: string | null }[];
+  seasons: TVShowSeason[];
+  languages: { english_name: string; iso_639_1: string; name: string }[];
+
+  constructor(data: TMDBTVShow) {
+    super(data);
+    this.releasedAt = data.first_air_date;
+    this.productionCompanies = data.production_companies;
+    this.seasons = data.seasons.map((season) => new TVShowSeason(season));
+    this.languages = data.spoken_languages;
+  }
+}
+
+export class TVShowSeason {
+  id: number;
+  name: string;
+  poster_path: string | null;
+
+  constructor(data: { id: number; name: string; poster_path: string | null }) {
+    this.id = data.id;
+    this.name = data.name;
+    this.poster_path = data.poster_path;
+  }
+
+  getPosterURL(size: ImageSize = "w500"): string {
+    return `${IMAGE_BASE_URL}/${size}/${this.poster_path}`;
   }
 }
 
@@ -84,6 +141,10 @@ export class Review {
       avatar_path: this.author_details.avatar_path,
       rating: this.author_details.rating,
     };
+  }
+
+  getAvatarURL(size: ImageSize = "w500"): string {
+    return `${IMAGE_BASE_URL}/${size}/${this.author_details.avatar_path}`;
   }
 
   getRating(): number {
