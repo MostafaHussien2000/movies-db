@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Icons from "./ui/Icons";
 import type { MediaType } from "../types/tmdb";
 import { Movie, TVShow } from "../services/tmdb/models";
